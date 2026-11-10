@@ -1,0 +1,26 @@
+version: "3.9"
+# Local stack: MongoDB + API. (Add redis + `--scale api=3` + nginx.conf for multi-instance.)
+services:
+  mongo:
+    image: mongo:7
+    ports: ["27017:27017"]
+    volumes: ["mongo_data:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  api:
+    build: .
+    depends_on:
+      mongo: { condition: service_healthy }
+    ports: ["4000:4000"]
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      MONGODB_URI: mongodb://mongo:27017/pacewise
+      JWT_ACCESS_SECRET: dev-only-access-secret-change-me-please-32chars
+      JWT_REFRESH_SECRET: dev-only-refresh-secret-change-me-please-32chars
+      CORS_ORIGINS: http://localhost:3000
+volumes:
+  mongo_data:

@@ -1,0 +1,1016 @@
+[
+  {
+    "id": "user-001",
+    "name": "Dinesh Kushwaha",
+    "username": "dinesh.kushwaha",
+    "password": "4walnut.zebra",
+    "interests": [
+      "technology",
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-002",
+    "name": "Harsh Narayan Nishad",
+    "username": "harsh.nishad",
+    "password": "@7141spider",
+    "interests": [
+      "fiction",
+      "technology",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-003",
+    "name": "Aashwi",
+    "username": "aashwi",
+    "password": ".Ribbon_Lemon",
+    "interests": [
+      "nature",
+      "art",
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-004",
+    "name": "Sushama",
+    "username": "sushama",
+    "password": "Eagle8522*",
+    "interests": [
+      "mystery",
+      "drama",
+      "adventure",
+      "history"
+    ]
+  },
+  {
+    "id": "user-005",
+    "name": "Samriddhi",
+    "username": "samriddhi",
+    "password": "29sunnyGinger&",
+    "interests": [
+      "adventure",
+      "nature",
+      "technology",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-006",
+    "name": "Akhilesh Saini",
+    "username": "akhilesh.saini",
+    "password": "ZEBRA_58_MOVIE&",
+    "interests": [
+      "coastal",
+      "nature",
+      "science",
+      "short-story"
+    ]
+  },
+  {
+    "id": "user-007",
+    "name": "Akash Nishad",
+    "username": "akash.nishad",
+    "password": "summer76marble_",
+    "interests": [
+      "fiction",
+      "biology",
+      "history"
+    ]
+  },
+  {
+    "id": "user-008",
+    "name": "Janhavi",
+    "username": "janhavi",
+    "password": "&Flower879",
+    "interests": [
+      "drama",
+      "short-story",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-009",
+    "name": "Hariom Nathani",
+    "username": "hariom.nathani",
+    "password": "Lantern.46Cedar",
+    "interests": [
+      "biology",
+      "fiction"
+    ]
+  },
+  {
+    "id": "user-010",
+    "name": "User 10",
+    "username": "user10",
+    "password": "Apple39",
+    "interests": [
+      "drama",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-011",
+    "name": "User 11",
+    "username": "user11",
+    "password": "Jersey39#",
+    "interests": [
+      "art",
+      "mystery"
+    ]
+  },
+  {
+    "id": "user-012",
+    "name": "User 12",
+    "username": "user12",
+    "password": "%8Yellow.Ladder",
+    "interests": [
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-013",
+    "name": "User 13",
+    "username": "user13",
+    "password": "#jersey68",
+    "interests": [
+      "nature",
+      "technology"
+    ]
+  },
+  {
+    "id": "user-014",
+    "name": "User 14",
+    "username": "user14",
+    "password": "FEATHER_YELLOW",
+    "interests": [
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-015",
+    "name": "User 15",
+    "username": "user15",
+    "password": "Movie-Nickel7?",
+    "interests": [
+      "adventure",
+      "history"
+    ]
+  },
+  {
+    "id": "user-016",
+    "name": "User 16",
+    "username": "user16",
+    "password": "!8bottle",
+    "interests": [
+      "technology",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-017",
+    "name": "User 17",
+    "username": "user17",
+    "password": "@river.cherry4",
+    "interests": [
+      "science",
+      "short-story"
+    ]
+  },
+  {
+    "id": "user-018",
+    "name": "User 18",
+    "username": "user18",
+    "password": "&6quartzlemon",
+    "interests": [
+      "history",
+      "biology"
+    ]
+  },
+  {
+    "id": "user-019",
+    "name": "User 19",
+    "username": "user19",
+    "password": "@2989schoolSunny",
+    "interests": [
+      "coastal",
+      "drama"
+    ]
+  },
+  {
+    "id": "user-020",
+    "name": "User 20",
+    "username": "user20",
+    "password": "$ginger472",
+    "interests": [
+      "short-story",
+      "art"
+    ]
+  },
+  {
+    "id": "user-021",
+    "name": "Ankit Sahani",
+    "username": "ankit.sahani",
+    "password": "PENCIL5-",
+    "interests": [
+      "technology",
+      "fiction",
+      "short-story",
+      "art"
+    ]
+  },
+  {
+    "id": "user-022",
+    "name": "User 22",
+    "username": "user22",
+    "password": "#252bridge",
+    "interests": [
+      "biology",
+      "fiction"
+    ]
+  },
+  {
+    "id": "user-023",
+    "name": "User 23",
+    "username": "user23",
+    "password": "&POCKET.FALCON1",
+    "interests": [
+      "drama",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-024",
+    "name": "User 24",
+    "username": "user24",
+    "password": "*kitten",
+    "interests": [
+      "art",
+      "mystery"
+    ]
+  },
+  {
+    "id": "user-025",
+    "name": "User 25",
+    "username": "user25",
+    "password": "3ANCHOR",
+    "interests": [
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-026",
+    "name": "User 26",
+    "username": "user26",
+    "password": "%Magnet9142",
+    "interests": [
+      "nature",
+      "technology"
+    ]
+  },
+  {
+    "id": "user-027",
+    "name": "User 27",
+    "username": "user27",
+    "password": "#44peanut-saddle",
+    "interests": [
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-028",
+    "name": "User 28",
+    "username": "user28",
+    "password": "985PIZZA#",
+    "interests": [
+      "adventure",
+      "history"
+    ]
+  },
+  {
+    "id": "user-029",
+    "name": "User 29",
+    "username": "user29",
+    "password": "mirror#",
+    "interests": [
+      "technology",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-030",
+    "name": "User 30",
+    "username": "user30",
+    "password": "PURPLE6%",
+    "interests": [
+      "science",
+      "short-story"
+    ]
+  },
+  {
+    "id": "user-031",
+    "name": "User 31",
+    "username": "user31",
+    "password": "Parrot4?",
+    "interests": [
+      "history",
+      "biology"
+    ]
+  },
+  {
+    "id": "user-032",
+    "name": "User 32",
+    "username": "user32",
+    "password": "#tiger_rainbow7",
+    "interests": [
+      "coastal",
+      "drama"
+    ]
+  },
+  {
+    "id": "user-033",
+    "name": "User 33",
+    "username": "user33",
+    "password": "?apple-coffee",
+    "interests": [
+      "short-story",
+      "art"
+    ]
+  },
+  {
+    "id": "user-034",
+    "name": "User 34",
+    "username": "user34",
+    "password": ".breeze",
+    "interests": [
+      "biology",
+      "fiction"
+    ]
+  },
+  {
+    "id": "user-035",
+    "name": "User 35",
+    "username": "user35",
+    "password": "Walnut-Panda",
+    "interests": [
+      "drama",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-036",
+    "name": "User 36",
+    "username": "user36",
+    "password": "94garden$",
+    "interests": [
+      "art",
+      "mystery"
+    ]
+  },
+  {
+    "id": "user-037",
+    "name": "User 37",
+    "username": "user37",
+    "password": "@wizard",
+    "interests": [
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-038",
+    "name": "User 38",
+    "username": "user38",
+    "password": "&igloo-Orange15",
+    "interests": [
+      "nature",
+      "technology"
+    ]
+  },
+  {
+    "id": "user-039",
+    "name": "User 39",
+    "username": "user39",
+    "password": "Laptop.Velvet2$",
+    "interests": [
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-040",
+    "name": "User 40",
+    "username": "user40",
+    "password": "%8Desert-Cloud",
+    "interests": [
+      "adventure",
+      "history"
+    ]
+  },
+  {
+    "id": "user-041",
+    "name": "User 41",
+    "username": "user41",
+    "password": "427ZIPPERCANDY",
+    "interests": [
+      "technology",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-042",
+    "name": "User 42",
+    "username": "user42",
+    "password": "4zipper%",
+    "interests": [
+      "science",
+      "short-story"
+    ]
+  },
+  {
+    "id": "user-043",
+    "name": "User 43",
+    "username": "user43",
+    "password": "4Tunnel!",
+    "interests": [
+      "history",
+      "biology"
+    ]
+  },
+  {
+    "id": "user-044",
+    "name": "User 44",
+    "username": "user44",
+    "password": "$SUNNY",
+    "interests": [
+      "coastal",
+      "drama"
+    ]
+  },
+  {
+    "id": "user-045",
+    "name": "User 45",
+    "username": "user45",
+    "password": "-MANGO6763",
+    "interests": [
+      "short-story",
+      "art"
+    ]
+  },
+  {
+    "id": "user-046",
+    "name": "User 46",
+    "username": "user46",
+    "password": "2PARROTGUITAR?",
+    "interests": [
+      "biology",
+      "fiction"
+    ]
+  },
+  {
+    "id": "user-047",
+    "name": "User 47",
+    "username": "user47",
+    "password": "3MONKEY.LADDER$",
+    "interests": [
+      "drama",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-048",
+    "name": "User 48",
+    "username": "user48",
+    "password": "Garden8957Rabbit",
+    "interests": [
+      "art",
+      "mystery"
+    ]
+  },
+  {
+    "id": "user-049",
+    "name": "User 49",
+    "username": "user49",
+    "password": "movie8%",
+    "interests": [
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-050",
+    "name": "User 50",
+    "username": "user50",
+    "password": "9whistlenickel.",
+    "interests": [
+      "nature",
+      "technology"
+    ]
+  },
+  {
+    "id": "user-051",
+    "name": "User 51",
+    "username": "user51",
+    "password": "$VIOLET_TUNNEL",
+    "interests": [
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-052",
+    "name": "User 52",
+    "username": "user52",
+    "password": "&Window14",
+    "interests": [
+      "adventure",
+      "history"
+    ]
+  },
+  {
+    "id": "user-053",
+    "name": "User 53",
+    "username": "user53",
+    "password": "VELVET*",
+    "interests": [
+      "technology",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-054",
+    "name": "User 54",
+    "username": "user54",
+    "password": "?9Mango",
+    "interests": [
+      "science",
+      "short-story"
+    ]
+  },
+  {
+    "id": "user-055",
+    "name": "User 55",
+    "username": "user55",
+    "password": "952YouthSilver*",
+    "interests": [
+      "history",
+      "biology"
+    ]
+  },
+  {
+    "id": "user-056",
+    "name": "User 56",
+    "username": "user56",
+    "password": "yellowneedle?",
+    "interests": [
+      "coastal",
+      "drama"
+    ]
+  },
+  {
+    "id": "user-057",
+    "name": "User 57",
+    "username": "user57",
+    "password": "@rocket-cloud",
+    "interests": [
+      "short-story",
+      "art"
+    ]
+  },
+  {
+    "id": "user-058",
+    "name": "User 58",
+    "username": "user58",
+    "password": "?Blanket",
+    "interests": [
+      "biology",
+      "fiction"
+    ]
+  },
+  {
+    "id": "user-059",
+    "name": "User 59",
+    "username": "user59",
+    "password": ".YOGURT164",
+    "interests": [
+      "drama",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-060",
+    "name": "User 60",
+    "username": "user60",
+    "password": "PEANUTCRICKET3@",
+    "interests": [
+      "art",
+      "mystery"
+    ]
+  },
+  {
+    "id": "user-061",
+    "name": "User 61",
+    "username": "user61",
+    "password": "89Office.Breeze_",
+    "interests": [
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-062",
+    "name": "User 62",
+    "username": "user62",
+    "password": "73Insect-Cherry#",
+    "interests": [
+      "nature",
+      "technology"
+    ]
+  },
+  {
+    "id": "user-063",
+    "name": "User 63",
+    "username": "user63",
+    "password": "&136office",
+    "interests": [
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-064",
+    "name": "User 64",
+    "username": "user64",
+    "password": "89eagle-",
+    "interests": [
+      "adventure",
+      "history"
+    ]
+  },
+  {
+    "id": "user-065",
+    "name": "User 65",
+    "username": "user65",
+    "password": "TOMATO9791",
+    "interests": [
+      "technology",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-066",
+    "name": "User 66",
+    "username": "user66",
+    "password": "WIZARD@",
+    "interests": [
+      "science",
+      "short-story"
+    ]
+  },
+  {
+    "id": "user-067",
+    "name": "User 67",
+    "username": "user67",
+    "password": ".Peanut25",
+    "interests": [
+      "history",
+      "biology"
+    ]
+  },
+  {
+    "id": "user-068",
+    "name": "User 68",
+    "username": "user68",
+    "password": "_helmet7",
+    "interests": [
+      "coastal",
+      "drama"
+    ]
+  },
+  {
+    "id": "user-069",
+    "name": "User 69",
+    "username": "user69",
+    "password": "tomato93_",
+    "interests": [
+      "short-story",
+      "art"
+    ]
+  },
+  {
+    "id": "user-070",
+    "name": "User 70",
+    "username": "user70",
+    "password": "PANDA1",
+    "interests": [
+      "biology",
+      "fiction"
+    ]
+  },
+  {
+    "id": "user-071",
+    "name": "User 71",
+    "username": "user71",
+    "password": "8123KITTEN",
+    "interests": [
+      "drama",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-072",
+    "name": "User 72",
+    "username": "user72",
+    "password": ".ladder6658",
+    "interests": [
+      "art",
+      "mystery"
+    ]
+  },
+  {
+    "id": "user-073",
+    "name": "User 73",
+    "username": "user73",
+    "password": "%dolphin76",
+    "interests": [
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-074",
+    "name": "User 74",
+    "username": "user74",
+    "password": "CandyEngine*",
+    "interests": [
+      "nature",
+      "technology"
+    ]
+  },
+  {
+    "id": "user-075",
+    "name": "User 75",
+    "username": "user75",
+    "password": "Violet-Spider!",
+    "interests": [
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-076",
+    "name": "User 76",
+    "username": "user76",
+    "password": "99island-Purple@",
+    "interests": [
+      "adventure",
+      "history"
+    ]
+  },
+  {
+    "id": "user-077",
+    "name": "User 77",
+    "username": "user77",
+    "password": "JUNGLE-PUZZLE%",
+    "interests": [
+      "technology",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-078",
+    "name": "User 78",
+    "username": "user78",
+    "password": "magnet_Quartz76$",
+    "interests": [
+      "science",
+      "short-story"
+    ]
+  },
+  {
+    "id": "user-079",
+    "name": "User 79",
+    "username": "user79",
+    "password": "engineyouth!",
+    "interests": [
+      "history",
+      "biology"
+    ]
+  },
+  {
+    "id": "user-080",
+    "name": "User 80",
+    "username": "user80",
+    "password": "!jungle5315",
+    "interests": [
+      "coastal",
+      "drama"
+    ]
+  },
+  {
+    "id": "user-081",
+    "name": "User 81",
+    "username": "user81",
+    "password": "?basket144",
+    "interests": [
+      "short-story",
+      "art"
+    ]
+  },
+  {
+    "id": "user-082",
+    "name": "User 82",
+    "username": "user82",
+    "password": "$5758donkey",
+    "interests": [
+      "biology",
+      "fiction"
+    ]
+  },
+  {
+    "id": "user-083",
+    "name": "User 83",
+    "username": "user83",
+    "password": "_COFFEE.SADDLE2",
+    "interests": [
+      "drama",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-084",
+    "name": "User 84",
+    "username": "user84",
+    "password": "$2fridge",
+    "interests": [
+      "art",
+      "mystery"
+    ]
+  },
+  {
+    "id": "user-085",
+    "name": "User 85",
+    "username": "user85",
+    "password": "silver?",
+    "interests": [
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-086",
+    "name": "User 86",
+    "username": "user86",
+    "password": "@LEMON55",
+    "interests": [
+      "nature",
+      "technology"
+    ]
+  },
+  {
+    "id": "user-087",
+    "name": "User 87",
+    "username": "user87",
+    "password": "candy?",
+    "interests": [
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-088",
+    "name": "User 88",
+    "username": "user88",
+    "password": "!NICKEL5673",
+    "interests": [
+      "adventure",
+      "history"
+    ]
+  },
+  {
+    "id": "user-089",
+    "name": "User 89",
+    "username": "user89",
+    "password": "CHERRY_DRAGON1!",
+    "interests": [
+      "technology",
+      "coastal"
+    ]
+  },
+  {
+    "id": "user-090",
+    "name": "User 90",
+    "username": "user90",
+    "password": "winter1!",
+    "interests": [
+      "science",
+      "short-story"
+    ]
+  },
+  {
+    "id": "user-091",
+    "name": "User 91",
+    "username": "user91",
+    "password": ".Island5",
+    "interests": [
+      "history",
+      "biology"
+    ]
+  },
+  {
+    "id": "user-092",
+    "name": "User 92",
+    "username": "user92",
+    "password": "$4mango-kernel",
+    "interests": [
+      "coastal",
+      "drama"
+    ]
+  },
+  {
+    "id": "user-093",
+    "name": "User 93",
+    "username": "user93",
+    "password": "RIBBON2",
+    "interests": [
+      "short-story",
+      "art"
+    ]
+  },
+  {
+    "id": "user-094",
+    "name": "User 94",
+    "username": "user94",
+    "password": "$HAMMER-JACKET",
+    "interests": [
+      "biology",
+      "fiction"
+    ]
+  },
+  {
+    "id": "user-095",
+    "name": "User 95",
+    "username": "user95",
+    "password": "feather_",
+    "interests": [
+      "drama",
+      "nature"
+    ]
+  },
+  {
+    "id": "user-096",
+    "name": "User 96",
+    "username": "user96",
+    "password": ".17forest",
+    "interests": [
+      "art",
+      "mystery"
+    ]
+  },
+  {
+    "id": "user-097",
+    "name": "User 97",
+    "username": "user97",
+    "password": "SILVER171_",
+    "interests": [
+      "fiction",
+      "adventure"
+    ]
+  },
+  {
+    "id": "user-098",
+    "name": "User 98",
+    "username": "user98",
+    "password": "QUARTZ-SCHOOL#",
+    "interests": [
+      "nature",
+      "technology"
+    ]
+  },
+  {
+    "id": "user-099",
+    "name": "User 99",
+    "username": "user99",
+    "password": "63MUSIC*",
+    "interests": [
+      "mystery",
+      "science"
+    ]
+  },
+  {
+    "id": "user-100",
+    "name": "User 100",
+    "username": "user100",
+    "password": "Puzzle.Bottle3_",
+    "interests": [
+      "adventure",
+      "history"
+    ]
+  }
+]
