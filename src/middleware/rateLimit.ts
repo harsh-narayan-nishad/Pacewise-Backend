@@ -23,10 +23,11 @@ export function rateLimit(opts: { windowSeconds: number; max: number; keyPrefix:
       return;
     }
 
-    redis
+    const client = redis; // not null here (checked above); a local copy keeps that known inside the callback
+    client
       .incr(key)
       .then(async (count) => {
-        if (count === 1) await redis.expire(key, opts.windowSeconds);
+        if (count === 1) await client.expire(key, opts.windowSeconds);
         if (count > opts.max) {
           next(new AppError(429, "Too many requests — slow down", "RATE_LIMITED"));
           return;

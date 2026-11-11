@@ -12,7 +12,7 @@ import { env } from "@/config/env";
 import { ChangePasswordInput, GoogleInput, LoginInput, ResetOtpInput, ResetPasswordInput, SignupInput } from "@/modules/auth/auth.schema";
 
 const newRefreshToken = () => crypto.randomBytes(48).toString("hex");
-const refreshExpiryDate = () => new Date(Date.now() + ms(env.JWT_REFRESH_TTL as ms.StringValue));
+const refreshExpiryDate = () => new Date(Date.now() + ms(env.JWT_REFRESH_TTL as never) /* "30d"-style text; the cast keeps this compiling with any @types/ms version */);
 
 async function issueTokenPair(userId: string, username: string, device?: string) {
   const accessToken = signAccessToken({ sub: userId, username });

@@ -10,9 +10,10 @@
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts",
     "seed": "tsx scripts/seed-demo-users.ts",
-    "test": "tsx --test src/modules/sync/policy.test.ts src/modules/tracking/consistency.test.ts src/modules/auth/auth.schema.test.ts src/modules/admin/admin.policy.test.ts",
+    "test": "tsx --test src/modules/sync/policy.test.ts src/modules/tracking/consistency.test.ts src/modules/auth/auth.schema.test.ts src/modules/admin/admin.policy.test.ts src/modules/history/topics.test.ts src/modules/weekly/weekly.compute.test.ts src/modules/calendar/calendar.schema.test.ts",
     "mail:test": "tsx scripts/send-test-mail.ts",
-    "admin:create": "tsx scripts/create-admin.ts"
+    "admin:create": "tsx scripts/create-admin.ts",
+    "report:weekly": "tsx scripts/send-weekly-reports.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.620.0",

@@ -109,7 +109,7 @@ export async function listUsers(q: ListUsersQuery) {
   if (q.presence === "online") where.lastSeenAt = { $gte: new Date(now - ONLINE_MS) };
   else if (q.presence === "idle") where.lastSeenAt = { $gte: new Date(now - IDLE_MS), $lt: new Date(now - ONLINE_MS) };
   else if (q.presence === "offline") where.$and = [{ $or: [{ lastSeenAt: { $lt: new Date(now - IDLE_MS) } }, { lastSeenAt: null }, { lastSeenAt: { $exists: false } }] }, { status: { $nin: ["pending", "rejected", "banned"] } }];
-  const sort = q.sort === "seen" ? { lastSeenAt: -1 as const } : { createdAt: -1 as const };
+  const sort: Record<string, 1 | -1> = q.sort === "seen" ? { lastSeenAt: -1 } : { createdAt: -1 };
   const [rows, total] = await Promise.all([
     User.find(where).sort(sort).skip((q.page - 1) * q.limit).limit(q.limit).lean(),
     User.countDocuments(where),
