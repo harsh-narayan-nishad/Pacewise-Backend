@@ -1,4 +1,4 @@
-import { Follow, Story, User } from "@/models";
+import { Follow, Story, SyncRecord, User } from "@/models";
 import { ConflictError, NotFoundError } from "@/utils/AppError";
 import { publishEvent } from "@/modules/notifications/notifications.service";
 
@@ -56,4 +56,34 @@ export async function listDirectory(updatedSince?: string) {
   const where = { status: { $nin: ["pending", "rejected", "banned"] }, ...(updatedSince ? { updatedAt: { $gt: new Date(updatedSince) } } : {}) };
   const rows = await User.find(where).select("username name interests avatarUrl isDemoUser updatedAt").sort({ updatedAt: 1 }).limit(2000).lean();
   return rows.map((u) => ({ id: u._id, username: u.username, name: u.name, interests: u.interests, isDemoUser: u.isDemoUser ?? false, updatedAt: u.updatedAt }));
+}
+
+/**
+ * Who follows a person ("followers") or who they follow ("following"), newest first, public fields only.
+ * Follows made in the app are stored as synced records; follows made through the follow endpoints are in
+ * the Follow collection. Both are read and merged, so nobody is missing from the list.
+ */
+export async function listRelations(userId: string, kind: "followers" | "following", page: number, pageSize: number) {
+  const mineField = kind === "followers" ? "followingId" : "followerId";
+  const otherField = kind === "followers" ? "followerId" : "followingId";
+  const [synced, legacy] = await Promise.all([
+    SyncRecord.find({ coll: "follows", deleted: false, [`data.${mineField}`]: userId }).sort({ seq: -1 }).limit(5000).select("data").lean(),
+    Follow.find({ [mineField]: userId }).sort({ createdAt: -1 }).limit(5000).lean(),
+  ]);
+  const order: string[] = [];
+  const seen = new Set<string>();
+  const add = (v: unknown) => {
+    if (typeof v === "string" && v && v !== userId && !seen.has(v)) { seen.add(v); order.push(v); }
+  };
+  for (const r of synced) add((r.data as Record<string, unknown>)[otherField]);
+  for (const l of legacy) add((l as unknown as Record<string, unknown>)[otherField]);
+
+  // Accounts that are banned or not approved are not shown to other people.
+  const rows = await User.find({ _id: { $in: order }, status: { $nin: ["pending", "rejected", "banned"] } }).select("username name avatarUrl").lean();
+  const by = new Map(rows.map((u) => [u._id as string, u]));
+  const people = order.filter((id) => by.has(id)).map((id) => {
+    const u = by.get(id)!;
+    return { id, username: u.username, name: u.name, avatarUrl: (u as { avatarUrl?: string }).avatarUrl ?? null };
+  });
+  return { items: people.slice((page - 1) * pageSize, page * pageSize), total: people.length, page, pageSize };
 }

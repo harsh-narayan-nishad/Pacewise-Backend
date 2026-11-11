@@ -104,7 +104,7 @@ REQUIRE_ADMIN_APPROVAL=true
 ```
 - `APP_URL`: where the web app runs. The link inside e-mails opens here. In production use your real address, for example `https://pacewise.example.com`.
 - `CORS_ORIGINS`: every address allowed to call the API: the web app (`:3000`) and the admin app (`:3001`). Comma separated, no spaces, no trailing slash.
-- `REQUIRE_EMAIL_VERIFICATION=true`: a person must enter the OTP (or click the link) before they can sign in. Turn it on **after** the mail test works, otherwise nobody can finish sign-up.
+- `REQUIRE_EMAIL_VERIFICATION=true` (the default): every new person must enter the 6-digit OTP sent to their e-mail (or click the link) before they can sign in. Make sure the mail test in step 3 works first, otherwise nobody receives a code (it is then printed in the server terminal).
 - `REQUIRE_ADMIN_APPROVAL=true`: you must also approve each new account in the admin app.
 
 Leave `NODE_ENV`, `PORT`, `JWT_ACCESS_TTL`, `JWT_REFRESH_TTL` as they are.
@@ -128,6 +128,21 @@ In the **frontend** folder, create `.env.local`, and the same in the **admin** f
 NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
 ```
 (it must end with `/api/v1`). Restart those apps after creating it.
+
+## Step 6 (optional): "Continue with Google"
+
+The sign-in and sign-up page has a **Continue with Google** button. It works once you create a Google "Web application" client and paste its Client ID in two places. (The **Microsoft** button is shown but not connected yet.)
+
+1. Open https://console.cloud.google.com and create a project (or pick one).
+2. **APIs & Services > OAuth consent screen**: choose **External**, enter the app name `Pacewise` and your e-mail, and save. While the app is in "Testing", add your own Gmail under **Test users**.
+3. **APIs & Services > Credentials > Create credentials > OAuth client ID**, application type **Web application**.
+4. Under **Authorized JavaScript origins** add `http://localhost:3000` and `http://localhost:3001` (the admin app), plus your real addresses in production. Leave redirect URIs empty. Click **Create** and copy the **Client ID** (it ends with `.apps.googleusercontent.com`). The client secret is not needed.
+5. Backend `.env`: `GOOGLE_CLIENT_ID=<the Client ID>`, then restart the backend.
+6. Web app `.env.local` (frontend folder) **and** admin app `.env.local` (admin folder): `NEXT_PUBLIC_GOOGLE_CLIENT_ID=<the same Client ID>`, then restart both apps.
+
+In the admin app the Google button only lets in an e-mail that already belongs to an admin account (it never creates one). Create the admin first with `npm run admin:create`.
+
+How it behaves: the first time, the person's account is created from their Google name and e-mail (no confirmation code is needed, Google has already verified the address). The usual rules still apply: banned e-mails are refused, and a new account waits for admin approval when `REQUIRE_ADMIN_APPROVAL=true`. Someone who signs up with Google has no password; "Forgot password" lets them set one.
 
 ## Step 7: check that the OTP works
 
@@ -157,6 +172,9 @@ With Postman: `POST /auth/verify-email-otp` `{ "email", "otp" }` and `POST /auth
 | E-mail in spam | Normal for a new sender. Mark it "not spam". A real mail service with your own domain fixes this. |
 | `INVALID_CODE` | Wrong or expired code, or already used. Ask for a new one. |
 | Cannot sign in after sign-up | E-mail not confirmed yet, or the account is waiting for admin approval (check the admin app, Approvals). |
+| Google button says "Google sign-in is not set up yet." | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is missing in the web app `.env.local`. Add it and restart the web app. |
+| Google popup says the origin is not allowed | Add `http://localhost:3000` under Authorized JavaScript origins in the Google client (step 6.4). |
+| Google sign-in fails after you pick an account | `GOOGLE_CLIENT_ID` in the backend `.env` is missing, or differs from the web app's. |
 | Browser: `CORS` error | The web or admin address is missing in `CORS_ORIGINS`. Add it and restart the backend. |
 
 ## Safety checklist

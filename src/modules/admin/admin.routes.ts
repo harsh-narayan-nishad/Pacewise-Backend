@@ -3,7 +3,7 @@ import * as c from "@/modules/admin/admin.controller";
 import { requireAdmin } from "@/middleware/auth";
 import { validate } from "@/middleware/validate";
 import { rateLimit } from "@/middleware/rateLimit";
-import { loginSchema } from "@/modules/auth/auth.schema";
+import { googleSchema, loginSchema } from "@/modules/auth/auth.schema";
 import { auditQuery, banBody, bulkApproveBody, idParam, listReportsQuery, listUsersQuery, overviewQuery, reasonBody, removeContentBody, updateReportBody } from "@/modules/admin/admin.schema";
 
 export const adminRouter = Router();
@@ -15,6 +15,14 @@ adminRouter.post(
   rateLimit({ windowSeconds: 15 * 60, max: 10, keyPrefix: "admin-login-id", key: (req) => String(req.body?.identifier ?? "").toLowerCase() }),
   validate({ body: loginSchema }),
   c.login
+);
+
+// Google sign-in for administrators (never creates an account).
+adminRouter.post(
+  "/google",
+  rateLimit({ windowSeconds: 60, max: 20, keyPrefix: "admin-google-ip" }),
+  validate({ body: googleSchema }),
+  c.google
 );
 
 // Everything below needs a signed-in administrator.

@@ -10,6 +10,7 @@ const actor = (req: Request) => {
 };
 
 export const login = asyncHandler(async (req, res) => res.json(await admin.adminLogin(req.body)));
+export const google = asyncHandler(async (req, res) => res.json(await admin.adminGoogleLogin(req.body)));
 export const overview = asyncHandler(async (req, res) => res.json(await admin.overview((req.query as unknown as { includeDemo: boolean }).includeDemo)));
 export const listUsers = asyncHandler(async (req, res) => res.json(await admin.listUsers(req.query as never)));
 export const getUser = asyncHandler(async (req, res) => res.json({ user: await admin.getUser(req.params.id) }));

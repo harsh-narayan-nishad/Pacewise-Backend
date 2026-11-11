@@ -176,6 +176,8 @@ export const ReadingSession = mongoose.model(
       _id: id,
       userId: { type: String, required: true },
       storyId: String,
+      title: String,
+      wordCount: Number,
       wpm: Number,
       minutes: Number,
       completed: Boolean,
@@ -186,9 +188,29 @@ export const ReadingSession = mongoose.model(
       accuracy: Number,
       totalQuestions: Number,
       correctAnswers: Number,
+      // Per-topic result of the test (strong/medium/weak is derived from these counts, see modules/history/topics.ts).
+      topics: { type: [new Schema({ topic: { type: String, required: true }, correct: { type: Number, required: true }, total: { type: Number, required: true } }, { _id: false })], default: [] },
+      topicsEditedAt: Date,
     },
     { ...opts, timestamps: true }
   ).index({ userId: 1, createdAt: -1 })
+);
+
+// ---- Calendar ---------------------------------------------------------------------
+export const CalendarEvent = mongoose.model(
+  "CalendarEvent",
+  new Schema(
+    {
+      _id: id,
+      userId: { type: String, required: true },
+      title: { type: String, required: true },
+      start: { type: Date, required: true },
+      end: { type: Date, required: true },
+      allDay: { type: Boolean, default: false },
+      variant: { type: String, enum: ["primary", "secondary", "outline"], default: "primary" },
+    },
+    { ...opts, timestamps: true }
+  ).index({ userId: 1, start: 1 })
 );
 
 // ---- Generic synced records (frontend social data) --------------------------------

@@ -37,6 +37,10 @@ export async function adminLogin(input: Parameters<typeof authService.login>[0])
   return result;
 }
 
+export async function adminGoogleLogin(input: Parameters<typeof authService.googleAdminSignIn>[0]) {
+  return authService.googleAdminSignIn(input);
+}
+
 // ---- Metrics ----------------------------------------------------------------------------------------------------
 export async function overview(includeDemo: boolean) {
   const base = realUsers(includeDemo);

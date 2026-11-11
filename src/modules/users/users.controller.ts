@@ -29,3 +29,13 @@ export const unfollowUser = asyncHandler(async (req: Request, res: Response) => 
 export const listDirectory = asyncHandler(async (req: Request, res: Response) => {
   res.json(await usersService.listDirectory(req.query.updatedSince as string | undefined));
 });
+
+export const listFollowers = asyncHandler(async (req: Request, res: Response) => {
+  const { page, pageSize } = req.query as unknown as { page: number; pageSize: number };
+  res.json(await usersService.listRelations(req.params.id, "followers", page, pageSize));
+});
+
+export const listFollowing = asyncHandler(async (req: Request, res: Response) => {
+  const { page, pageSize } = req.query as unknown as { page: number; pageSize: number };
+  res.json(await usersService.listRelations(req.params.id, "following", page, pageSize));
+});

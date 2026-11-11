@@ -14,6 +14,10 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(result);
 });
 
+export const google = asyncHandler(async (req: Request, res: Response) => {
+  res.status(200).json(await authService.googleSignIn(req.body));
+});
+
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const result = await authService.refresh(req.body.refreshToken);
   res.status(200).json(result);

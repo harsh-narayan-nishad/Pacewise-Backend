@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as authController from "@/modules/auth/auth.controller";
 import { validate } from "@/middleware/validate";
-import { availabilityQuerySchema, changePasswordSchema, emailBodySchema, loginSchema, refreshSchema, resetOtpSchema, resetPasswordSchema, signupSchema, tokenBodySchema, verifyOtpSchema } from "@/modules/auth/auth.schema";
+import { availabilityQuerySchema, changePasswordSchema, emailBodySchema, googleSchema, loginSchema, refreshSchema, resetOtpSchema, resetPasswordSchema, signupSchema, tokenBodySchema, verifyOtpSchema } from "@/modules/auth/auth.schema";
 import { rateLimit } from "@/middleware/rateLimit";
 
 export const authRouter = Router();
@@ -17,6 +17,7 @@ authRouter.post("/signup", authRateLimit, validate({ body: signupSchema }), auth
 const loginGuess = rateLimit({ windowSeconds: 15 * 60, max: 10, keyPrefix: "login-id", key: (req) => String(req.body?.identifier ?? "").toLowerCase().trim() || "none" });
 
 authRouter.post("/login", authRateLimit, loginGuess, validate({ body: loginSchema }), authController.login);
+authRouter.post("/google", authRateLimit, validate({ body: googleSchema }), authController.google);
 authRouter.post("/refresh", authRateLimit, validate({ body: refreshSchema }), authController.refresh);
 authRouter.post("/logout", validate({ body: refreshSchema }), authController.logout);
 authRouter.post("/logout-all", ...authController.logoutAll);

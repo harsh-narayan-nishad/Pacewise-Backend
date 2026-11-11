@@ -4,12 +4,12 @@ import ms from "ms";
 import { AuthToken, BannedIdentity, RefreshToken, User } from "@/models";
 import { canonicalEmail } from "@/modules/admin/identity";
 import { MESSAGES } from "@/modules/admin/accountGuard";
-import { resetPasswordMail, sendMail, verifyEmailMail } from "@/utils/mailer";
+import { resetPasswordMail, sendMail, verifyEmailMail, welcomeMail } from "@/utils/mailer";
 import { logger } from "@/config/logger";
 import { signAccessToken } from "@/utils/jwt";
 import { AppError, ConflictError, NotFoundError, UnauthorizedError } from "@/utils/AppError";
 import { env } from "@/config/env";
-import { ChangePasswordInput, LoginInput, ResetOtpInput, ResetPasswordInput, SignupInput } from "@/modules/auth/auth.schema";
+import { ChangePasswordInput, GoogleInput, LoginInput, ResetOtpInput, ResetPasswordInput, SignupInput } from "@/modules/auth/auth.schema";
 
 const newRefreshToken = () => crypto.randomBytes(48).toString("hex");
 const refreshExpiryDate = () => new Date(Date.now() + ms(env.JWT_REFRESH_TTL as ms.StringValue));
@@ -34,6 +34,11 @@ export async function signup(input: SignupInput) {
   const user = await User.create({ email: input.email, username: input.username, passwordHash, name: input.name, emailVerified: false, status });
   await sendVerification(user._id, user.email, user.name);
   const approvalRequired = status === "pending";
+  // Welcome e-mail on first sign-up only. A mail outage must never block sign-up, so failures are only logged.
+  try {
+    const next = env.requireEmailVerification ? "confirm-email" : approvalRequired ? "wait-approval" : "sign-in";
+    await sendMail({ to: user.email, ...welcomeMail(user.name, next, env.APP_URL) });
+  } catch (err) { logger.error({ err }, "Could not send welcome e-mail"); }
   // No session yet when the e-mail must be confirmed first, or when an admin still has to approve the account.
   if (env.requireEmailVerification) return { user: toPublicUser(user), verificationRequired: true as const, approvalRequired };
   if (approvalRequired) return { user: toPublicUser(user), verificationRequired: false as const, approvalRequired };
@@ -222,4 +227,80 @@ export async function resetPasswordOtp(input: ResetOtpInput) {
   await RefreshToken.updateMany({ userId, revokedAt: null }, { revokedAt: new Date() });
   await AuthToken.deleteMany({ userId, type: "reset-password" });
   return { reset: true };
+}
+
+// ---- Continue with Google --------------------------------------------------------------------------------------
+
+/** Asks Google to verify the ID token (signature and expiry), then checks it was issued for OUR app and the e-mail is verified. */
+async function verifyGoogleIdToken(idToken: string): Promise<{ email: string; name: string }> {
+  if (!env.GOOGLE_CLIENT_ID) throw new AppError(503, "Google sign-in is not set up on the server.", "GOOGLE_NOT_CONFIGURED");
+  let p: { aud?: string; iss?: string; email?: string; email_verified?: string | boolean; name?: string };
+  try {
+    const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
+    if (!res.ok) throw new Error(`tokeninfo ${res.status}`);
+    p = (await res.json()) as typeof p;
+  } catch (err) {
+    logger.warn({ err }, "Google token could not be verified");
+    throw new UnauthorizedError("Google sign-in failed. Try again.");
+  }
+  const issuerOk = p.iss === "accounts.google.com" || p.iss === "https://accounts.google.com";
+  const verified = p.email_verified === true || p.email_verified === "true";
+  if (p.aud !== env.GOOGLE_CLIENT_ID || !issuerOk || !p.email || !verified) throw new UnauthorizedError("Google sign-in failed. Try again.");
+  const email = p.email.toLowerCase();
+  return { email, name: (p.name ?? "").trim() || email.split("@")[0] };
+}
+
+async function freeUsername(email: string): Promise<string> {
+  const base = (email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 18) || "user").padEnd(3, "0");
+  for (let i = 0; i < 6; i++) {
+    const candidate = i === 0 ? base : `${base}${crypto.randomInt(1000, 9999)}`;
+    if (!(await User.exists({ username: candidate }))) return candidate;
+  }
+  return `${base}${crypto.randomBytes(3).toString("hex")}`;
+}
+
+/**
+ * Sign in or sign up with a Google account. The same rules as the e-mail flow apply: permanently banned addresses are refused,
+ * and a brand-new account still waits for admin approval when REQUIRE_ADMIN_APPROVAL=true. Google has already confirmed the
+ * e-mail address, so no confirmation code is needed.
+ */
+export async function googleSignIn(input: GoogleInput) {
+  const { email, name } = await verifyGoogleIdToken(input.idToken);
+  if (await BannedIdentity.exists({ _id: canonicalEmail(email) })) throw new AppError(403, "This email address can't be used on Pacewise.", "ACCOUNT_BANNED");
+
+  let user = await User.findOne({ email });
+  if (user) {
+    if (user.status === "banned") throw new AppError(403, MESSAGES.banned[1], MESSAGES.banned[0]);
+    if (user.status === "pending" || user.status === "rejected") throw new AppError(403, MESSAGES[user.status][1], MESSAGES[user.status][0]);
+    if (!user.emailVerified) {
+      // The address was registered with a password but never confirmed. Whoever set that password may not own the inbox,
+      // so it is replaced by an unusable one now that the real owner has proved it with Google.
+      user.emailVerified = true;
+      user.passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 12);
+      await user.save();
+    }
+    const tokens = await issueTokenPair(user._id, user.username, input.device);
+    return { user: toPublicUser(user), ...tokens };
+  }
+
+  const status = env.requireAdminApproval ? "pending" : "active";
+  const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 12); // no password: they sign in with Google, or use "Forgot password"
+  user = await User.create({ email, username: await freeUsername(email), passwordHash, name, emailVerified: true, status });
+  try {
+    await sendMail({ to: user.email, ...welcomeMail(user.name, status === "pending" ? "wait-approval" : "sign-in", env.APP_URL) });
+  } catch (err) { logger.error({ err }, "Could not send welcome e-mail"); }
+  if (status === "pending") return { user: toPublicUser(user), approvalRequired: true as const };
+  const tokens = await issueTokenPair(user._id, user.username, input.device);
+  return { user: toPublicUser(user), approvalRequired: false as const, ...tokens };
+}
+
+/** "Continue with Google" for the admin app. It never creates an account: only an existing administrator can get in. */
+export async function googleAdminSignIn(input: GoogleInput) {
+  const { email } = await verifyGoogleIdToken(input.idToken);
+  const user = await User.findOne({ email });
+  if (!user || user.role !== "admin") throw new AppError(403, "This account is not an administrator.", "NOT_ADMIN");
+  if (user.status === "banned") throw new AppError(403, MESSAGES.banned[1], MESSAGES.banned[0]);
+  if (user.status === "pending" || user.status === "rejected") throw new AppError(403, MESSAGES[user.status][1], MESSAGES[user.status][0]);
+  const tokens = await issueTokenPair(user._id, user.username, input.device);
+  return { user: toPublicUser(user), ...tokens };
 }

@@ -22,6 +22,8 @@ const schema = z.object({
   // Optional. Without it, rate limiting and live notifications run in
   // this process' memory (fine for ONE instance). Set it to run several.
   REDIS_URL: z.string().optional(),
+  /** Google "Web application" OAuth client id. Needed only for "Continue with Google". */
+  GOOGLE_CLIENT_ID: z.string().optional(),
 
   JWT_ACCESS_SECRET: z.string().min(32, "JWT_ACCESS_SECRET must be at least 32 characters"),
   JWT_REFRESH_SECRET: z.string().min(32, "JWT_REFRESH_SECRET must be at least 32 characters"),
@@ -47,8 +49,8 @@ const schema = z.object({
   MAIL_FROM: z.string().default("Pacewise <no-reply@pacewise.local>"),
   // Where the web app lives; e-mailed links point here (/verify-email?token=, /reset-password?token=).
   APP_URL: z.string().url().default("http://localhost:3000"),
-  // "true": people must confirm their e-mail before they can sign in. Turn on once SMTP works.
-  REQUIRE_EMAIL_VERIFICATION: z.enum(["true", "false"]).default("false"),
+  // "true" (default): every new account must confirm its e-mail with a 6-digit code before it can sign in. Without SMTP the code is printed in the server log.
+  REQUIRE_EMAIL_VERIFICATION: z.enum(["true", "false"]).default("true"),
   // "true": a new account cannot sign in until an admin approves it (admin app > Approvals).
   REQUIRE_ADMIN_APPROVAL: z.enum(["true", "false"]).default("true"),
 });

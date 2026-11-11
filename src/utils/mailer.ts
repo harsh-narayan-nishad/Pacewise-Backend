@@ -1,6 +1,8 @@
 import nodemailer from "nodemailer";
 import { env } from "@/config/env";
 import { logger } from "@/config/logger";
+import { COLORS, FONT, MONO, button, esc, layout } from "@/utils/mailLayout";
+import type { WeeklyReport } from "@/modules/weekly/weekly.compute";
 
 const transport = env.smtpEnabled
   ? nodemailer.createTransport({ host: env.SMTP_HOST, port: env.SMTP_PORT, secure: env.SMTP_PORT === 465, auth: { user: env.SMTP_USER, pass: env.SMTP_PASS?.replace(/\s+/g, "") } })
@@ -17,12 +19,11 @@ export async function sendMail(mail: Mail): Promise<void> {
   await transport.sendMail({ from: env.MAIL_FROM, ...mail });
 }
 
-const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
 
 /** Checks the SMTP login once at start-up and logs the result (never stops the server). */
 export async function checkMailSetup(): Promise<boolean> {
   if (!transport) {
-    logger.warn("E-mail: SMTP_HOST, SMTP_USER, and SMTP_PASS must all be set. E-mails (links and one-time codes) are PRINTED in this log instead of being sent.");
+    logger.warn("E-mail: SMTP_HOST / SMTP_USER / SMTP_PASS are not set. E-mails (links and one-time codes) are PRINTED in this log instead of being sent.");
     return false;
   }
   try {
@@ -35,300 +36,40 @@ export async function checkMailSetup(): Promise<boolean> {
   }
 }
 
-// export function verifyEmailMail(name: string, link: string, otp: string): Omit<Mail, "to"> {
-//   return {
-//     subject: `Your confirmation code is ${otp}`,
-//     text: `Hi ${name},\n\nYour confirmation code: ${otp}\n(valid 10 minutes)\n\nOr confirm with this link:\n${link}\n\nThe link works for 24 hours. If you did not sign up, ignore this message.`,
-//     html: `<p>Hi ${esc(name)},</p><p>Your confirmation code:</p><p style="font-size:28px;letter-spacing:6px;font-weight:600">${esc(otp)}</p><p>It is valid for 10 minutes.</p><p>Or confirm with this link: <a href="${esc(link)}">Confirm email</a> (works for 24 hours).</p><p>If you did not sign up, ignore this message.</p>`,
-//   };
-// }
+/** Apple-style one-time-code mail: the code leads the subject (it shows in the notification preview), one clear code block, a short security note. */
+function codeMail(o: { name: string; title: string; lead: string; otp: string; minutes: number; link: string; linkLabel: string; linkNote: string; ignoreNote: string }): Omit<Mail, "to"> {
+  const text = `${o.title}\n\nHi ${o.name},\n${o.lead}\n\n${o.otp}\n\nThis code expires in ${o.minutes} minutes. Do not share it with anyone: Pacewise will never ask you for it.\n\n${o.linkLabel}: ${o.link}\n(${o.linkNote})\n\n${o.ignoreNote}`;
+  const body = `<h1 style="margin:0 0 12px;font-size:32px;line-height:38px;font-weight:300;letter-spacing:-0.03em;color:${COLORS.ink}">${esc(o.title)}</h1>
+<p style="margin:0 0 28px;font-size:16px;line-height:24px;color:${COLORS.muted}">Hi ${esc(o.name)}, ${esc(o.lead)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:${COLORS.raised};border:1px solid ${COLORS.line};border-radius:24px;padding:28px 12px">
+<div style="font-family:${MONO};font-size:40px;line-height:48px;font-weight:500;letter-spacing:12px;padding-left:12px;color:${COLORS.ink}">${esc(o.otp)}</div></td></tr></table>
+<p style="margin:20px 0 0;font-size:14px;line-height:22px;color:${COLORS.muted}">This code expires in ${o.minutes} minutes. Do not share it with anyone. Pacewise will never ask you for it.</p>
+<p style="margin:28px 0 0;font-size:14px;line-height:22px;color:${COLORS.muted}">Prefer a link? <a href="${esc(o.link)}" style="color:${COLORS.ink};text-decoration:underline">${esc(o.linkLabel)}</a> <span style="color:${COLORS.faint}">(${esc(o.linkNote)})</span></p>`;
+  return { subject: `${o.otp} is your Pacewise verification code`, text, html: layout({ preheader: `${o.otp} is your Pacewise verification code. It expires in ${o.minutes} minutes.`, body, footer: esc(o.ignoreNote) }) };
+}
 
 export function verifyEmailMail(name: string, link: string, otp: string): Omit<Mail, "to"> {
-  return {
-    subject: `Your confirmation code is ${otp}`,
-    text: `Hi ${name},\n\nYour confirmation code: ${otp}\n(valid 10 minutes)\n\nOr confirm with this link:\n${link}\n\nThe link works for 24 hours. If you did not sign up, ignore this message.\n\nRegards,\nTeam Pacewise`,
-    html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark">
-<title>Pacewise</title>
-<style>
-  @media (max-width: 600px) {
-    .container { width: 100% !important; }
-    .card { padding: 32px 24px !important; }
-    .otp { font-size: 32px !important; letter-spacing: 8px !important; }
-  }
-  @media (prefers-color-scheme: dark) {
-    .bg { background-color: #000000 !important; }
-    .card { background-color: #1c1c1e !important; }
-    .title, .strong, .otp { color: #f5f5f7 !important; }
-    .body { color: #d1d1d6 !important; }
-    .muted { color: #98989d !important; }
-    .otp-box { background-color: #2c2c2e !important; }
-    .divider { border-top-color: #3a3a3c !important; }
-  }
-</style>
-</head>
-<body class="bg" style="margin:0;padding:0;background-color:#f5f5f7;-webkit-text-size-adjust:100%;">
-
-  <!-- Preheader (inbox preview text) -->
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
-    Your confirmation code is ${esc(otp)}. It is valid for 10 minutes.
-  </div>
-
-  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f7;">
-    <tr>
-      <td align="center" style="padding:40px 16px;">
-
-        <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;max-width:560px;">
-
-          <!-- Header -->
-          <tr>
-            <td align="center" style="padding:0 0 24px 0;font-family:'Century Gothic',CenturyGothic,'Apple Gothic','Avenir Next',Avenir,'URW Gothic',Futura,'Trebuchet MS',sans-serif;font-size:26px;line-height:32px;font-weight:400;letter-spacing:0;text-transform:none;">
-              <span class="title" style="color:#1d1d1f;font-weight:400;text-transform:none;">pacewise</span>
-            </td>
-          </tr>
-
-          <!-- Card -->
-          <tr>
-            <td class="card" align="left" style="background-color:#ffffff;border-radius:18px;padding:44px 44px 40px 44px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;text-align:left;">
-
-              <!-- Title -->
-              <h1 class="title" style="margin:0 0 28px 0;font-size:28px;line-height:34px;font-weight:600;letter-spacing:-0.4px;color:#1d1d1f;">
-                Confirm your email
-              </h1>
-
-              <!-- Greeting -->
-              <p class="strong" style="margin:0 0 12px 0;font-size:16px;line-height:24px;color:#1d1d1f;">
-                Hi ${esc(name)},
-              </p>
-              <p class="body" style="margin:0 0 24px 0;font-size:16px;line-height:24px;color:#424245;">
-                Your confirmation code:
-              </p>
-
-              <!-- Code -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td class="otp-box" align="center" style="background-color:#f5f5f7;border-radius:14px;padding:24px 16px;">
-                    <span class="otp" style="font-family:'Century Gothic',CenturyGothic,'Apple Gothic','Avenir Next',Avenir,'URW Gothic',Futura,'Trebuchet MS',sans-serif;font-size:38px;line-height:44px;font-weight:400;letter-spacing:12px;color:#1d1d1f;">${esc(otp)}</span>
-                  </td>
-                </tr>
-              </table>
-              <p class="muted" style="margin:12px 0 0 0;font-size:14px;line-height:20px;color:#6e6e73;">
-                It is valid for 10 minutes.
-              </p>
-
-              <!-- Divider -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0;">
-                <tr><td class="divider" style="border-top:1px solid #e5e5ea;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>
-              </table>
-
-              <!-- Link alternative -->
-              <p class="body" style="margin:0 0 20px 0;font-size:16px;line-height:24px;color:#424245;">
-                Or confirm with this link:
-              </p>
-
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td align="center" bgcolor="#0071e3" style="background-color:#0071e3;border-radius:12px;">
-                    <a href="${esc(link)}" style="display:inline-block;padding:14px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:22px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:12px;">Confirm email</a>
-                  </td>
-                </tr>
-              </table>
-              <p class="muted" style="margin:12px 0 0 0;font-size:14px;line-height:20px;color:#6e6e73;">
-                The link works for 24 hours.
-              </p>
-
-              <!-- Divider -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0;">
-                <tr><td class="divider" style="border-top:1px solid #e5e5ea;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>
-              </table>
-
-              <!-- Safety note -->
-              <p class="body" style="margin:0 0 28px 0;font-size:16px;line-height:24px;color:#424245;">
-                If you did not sign up, ignore this message.
-              </p>
-
-              <!-- Sign-off -->
-              <p class="body" style="margin:0;font-size:16px;line-height:24px;color:#424245;">
-                Regards,<br>
-                <span class="strong" style="font-weight:600;color:#1d1d1f;">Team Pacewise</span>
-              </p>
-
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td align="center" style="padding:24px 16px 0 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
-              <p class="muted" style="margin:0 0 6px 0;font-size:12px;line-height:18px;color:#6e6e73;text-align:center;">
-                You received this email because this address was used to sign up for a Pacewise account.
-              </p>
-              <p class="muted" style="margin:0;font-size:12px;line-height:18px;color:#86868b;text-align:center;">
-                This is an automated message, please do not reply.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`,
-  };
+  return codeMail({ name, title: "Verify your email", lead: "enter this code to confirm your email address and finish creating your account.", otp, minutes: 10, link, linkLabel: "Confirm email", linkNote: "valid for 24 hours", ignoreNote: "If you did not create a Pacewise account, you can safely ignore this email." });
 }
-
-// export function resetPasswordMail(name: string, link: string, otp: string): Omit<Mail, "to"> {
-//   return {
-//     subject: `Your password reset code is ${otp}`,
-//     text: `Hi ${name},\n\nSomeone asked to reset your password. Your code: ${otp}\n(valid 10 minutes)\n\nOr choose a new password with this link:\n${link}\n\nThe link works for 1 hour. If this was not you, ignore this message; your password stays the same.`,
-//     html: `<p>Hi ${esc(name)},</p><p>Someone asked to reset your password. Your code:</p><p style="font-size:28px;letter-spacing:6px;font-weight:600">${esc(otp)}</p><p>It is valid for 10 minutes.</p><p>Or choose a new password with this link: <a href="${esc(link)}">Reset password</a> (works for 1 hour).</p><p>If this was not you, ignore this message; your password stays the same.</p>`,
-//   };
-// }
 
 export function resetPasswordMail(name: string, link: string, otp: string): Omit<Mail, "to"> {
+  return codeMail({ name, title: "Reset your password", lead: "enter this code to choose a new password for your account.", otp, minutes: 10, link, linkLabel: "Reset password", linkNote: "valid for 1 hour", ignoreNote: "If you did not ask to reset your password, you can ignore this email. Your password has not changed." });
+}
+
+/** Sent once, right after a brand-new account is created. Says what happens next, depending on the server's switches. */
+export function welcomeMail(name: string, next: "confirm-email" | "wait-approval" | "sign-in", appUrl: string): Omit<Mail, "to"> {
+  const line = next === "confirm-email"
+    ? "One more step: enter the confirmation code from our other e-mail to activate your account."
+    : next === "wait-approval"
+      ? "Your account is waiting for approval. We will e-mail you as soon as it is approved."
+      : "Your account is ready. You can sign in now.";
   return {
-    subject: `Your Password Reset Code`,
-    text: `Hi ${name},\n\nSomeone asked to reset your password. Your code: ${otp}\n(valid 10 minutes)\n\nOr choose a new password with this link:\n${link}\n\nThe link works for 1 hour. If this was not you, ignore this message; your password stays the same.\n\nRegards,\nTeam Pacewise`,
-    html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark">
-<title>Pacewise</title>
-<style>
-  @media (max-width: 600px) {
-    .container { width: 100% !important; }
-    .card { padding: 32px 24px !important; }
-    .otp { font-size: 32px !important; letter-spacing: 8px !important; }
-  }
-  @media (prefers-color-scheme: dark) {
-    .bg { background-color: #000000 !important; }
-    .card { background-color: #1c1c1e !important; }
-    .title, .strong, .otp { color: #f5f5f7 !important; }
-    .body { color: #d1d1d6 !important; }
-    .muted { color: #98989d !important; }
-    .otp-box { background-color: #2c2c2e !important; }
-    .divider { border-top-color: #3a3a3c !important; }
-  }
-</style>
-</head>
-<body class="bg" style="margin:0;padding:0;background-color:#f5f5f7;-webkit-text-size-adjust:100%;">
-
-  <!-- Preheader (inbox preview text) -->
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
-    Your code is ${esc(otp)}. It is valid for 10 minutes.
-  </div>
-
-  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f7;">
-    <tr>
-      <td align="center" style="padding:40px 16px;">
-
-        <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;max-width:560px;">
-
-          <!-- Header -->
-          <tr>
-            <td align="center" style="padding:0 0 24px 0;font-family:'Century Gothic',CenturyGothic,'Apple Gothic','Avenir Next',Avenir,'URW Gothic',Futura,'Trebuchet MS',sans-serif;font-size:26px;line-height:32px;font-weight:400;letter-spacing:0;text-transform:none;">
-              <span class="title" style="color:#1d1d1f;font-weight:400;text-transform:none;">pacewise</span>
-            </td>
-          </tr>
-
-          <!-- Card -->
-          <tr>
-            <td class="card" align="left" style="background-color:#ffffff;border-radius:18px;padding:44px 44px 40px 44px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;text-align:left;">
-
-              <!-- Title -->
-              <h1 class="title" style="margin:0 0 28px 0;font-size:28px;line-height:34px;font-weight:600;letter-spacing:-0.4px;color:#1d1d1f;">
-                Reset your password
-              </h1>
-
-              <!-- Greeting -->
-              <p class="strong" style="margin:0 0 12px 0;font-size:16px;line-height:24px;color:#1d1d1f;">
-                Hi ${esc(name)},
-              </p>
-              <p class="body" style="margin:0 0 24px 0;font-size:16px;line-height:24px;color:#424245;">
-               A password reset was requested for your account. Your code is:
-              </p>
-
-              <!-- Code -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td class="otp-box" align="center" style="background-color:#f5f5f7;border-radius:14px;padding:24px 16px;">
-                    <span class="otp" style="font-family:'Century Gothic',CenturyGothic,'Apple Gothic','Avenir Next',Avenir,'URW Gothic',Futura,'Trebuchet MS',sans-serif;font-size:38px;line-height:44px;font-weight:400;letter-spacing:12px;color:#1d1d1f;">${esc(otp)}</span>                  </td>
-                </tr>
-              </table>
-              <p class="muted" style="margin:12px 0 0 0;font-size:14px;line-height:20px;color:#6e6e73;">
-                It is valid for 10 minutes.
-              </p>
-
-              <!-- Divider -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0;">
-                <tr><td class="divider" style="border-top:1px solid #e5e5ea;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>
-              </table>
-
-              <!-- Link alternative -->
-              <p class="body" style="margin:0 0 20px 0;font-size:16px;line-height:24px;color:#424245;">
-                Or choose a new password with this link:
-              </p>
-
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td align="center" bgcolor="#0071e3" style="background-color:#0071e3;border-radius:12px;">
-                    <a href="${esc(link)}" style="display:inline-block;padding:14px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:22px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:12px;">Reset password</a>
-                  </td>
-                </tr>
-              </table>
-              <p class="muted" style="margin:12px 0 0 0;font-size:14px;line-height:20px;color:#6e6e73;">
-                The link works for 1 hour.
-              </p>
-
-              <!-- Divider -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0;">
-                <tr><td class="divider" style="border-top:1px solid #e5e5ea;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>
-              </table>
-
-              <!-- Safety note -->
-              <p class="body" style="margin:0 0 28px 0;font-size:16px;line-height:24px;color:#424245;">
-                If this was not you, ignore this message; your password stays the same.
-              </p>
-
-              <!-- Sign-off -->
-              <p class="body" style="margin:0;font-size:16px;line-height:24px;color:#424245;">
-                Regards,<br>
-                <span class="strong" style="font-weight:600;color:#1d1d1f;">Team Pacewise</span>
-              </p>
-
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td align="center" style="padding:24px 16px 0 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
-              <p class="muted" style="margin:0 0 6px 0;font-size:12px;line-height:18px;color:#6e6e73;text-align:center;">
-                You received this email because a password reset was requested for your Pacewise account.
-              </p>
-              <p class="muted" style="margin:0;font-size:12px;line-height:18px;color:#86868b;text-align:center;">
-                This is an automated message, please do not reply.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`,
+    subject: "Welcome to Pacewise",
+    text: `Hi ${name},\n\nWelcome to Pacewise! Read at the speed of thought.\n\n${line}\n\n${appUrl}`,
+    html: `<p>Hi ${esc(name)},</p><p><strong>Welcome to Pacewise!</strong> Read at the speed of thought.</p><p>${esc(line)}</p><p><a href="${esc(appUrl)}">Open Pacewise</a></p>`,
   };
 }
+
 export function accountApprovedMail(name: string, signInUrl: string): Omit<Mail, "to"> {
   return {
     subject: "Your Pacewise account is approved",
@@ -343,4 +84,70 @@ export function accountDeclinedMail(name: string): Omit<Mail, "to"> {
     text: `Hi ${name},\n\nWe could not approve your account request at this time.`,
     html: `<p>Hi ${esc(name)},</p><p>We could not approve your account request at this time.</p>`,
   };
+}
+
+// ---- Weekly progress report ------------------------------------------------------------------------------------
+
+const fmtDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+const signed = (n: number | null, unit: string) => (n === null ? "" : `${n >= 0 ? "+" : "\u2212"}${Math.abs(n)}${unit} vs last week`);
+
+function tile(label: string, value: string, note: string): string {
+  return `<td width="50%" valign="top" style="padding:6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:${COLORS.raised};border:1px solid ${COLORS.line};border-radius:20px;padding:18px 20px">
+<div style="font-size:12px;line-height:16px;color:${COLORS.muted};text-transform:uppercase;letter-spacing:0.06em">${esc(label)}</div>
+<div style="margin-top:6px;font-size:30px;line-height:36px;font-weight:300;letter-spacing:-0.03em;color:${COLORS.ink}">${value}</div>
+<div style="margin-top:2px;font-size:12px;line-height:16px;color:${COLORS.faint}">${note ? esc(note) : "&nbsp;"}</div></td></tr></table></td>`;
+}
+
+function chips(list: { topic: string; accuracy: number }[], fg: string, bg: string): string {
+  return list.slice(0, 6).map((t) => `<span style="display:inline-block;margin:0 6px 6px 0;padding:5px 12px;border-radius:999px;background:${bg};color:${fg};font-size:13px;line-height:18px;font-weight:500">${esc(t.topic)} &middot; ${t.accuracy}%</span>`).join("");
+}
+
+function topicRow(title: string, list: { topic: string; accuracy: number }[], fg: string, bg: string): string {
+  if (!list.length) return "";
+  return `<tr><td style="padding:10px 0 4px;font-size:13px;line-height:18px;font-weight:500;color:${COLORS.ink}">${title} <span style="color:${COLORS.faint};font-weight:400">${list.length}</span></td></tr><tr><td>${chips(list, fg, bg)}</td></tr>`;
+}
+
+/** Weekly report: headline, four tiles, a 7-day activity strip, strong / medium / weak topics, one focus line. */
+export function weeklyReportMail(name: string, r: WeeklyReport, appUrl: string): Omit<Mail, "to"> {
+  const range = `${fmtDay(r.range.from)} \u2013 ${fmtDay(r.range.to)}`;
+  const top = Math.max(1, ...r.days.map((d) => d.minutes));
+  const strip = r.days.map((d) => {
+    const h = d.minutes > 0 ? Math.max(6, Math.round((d.minutes / top) * 56)) : 3;
+    return `<td align="center" valign="bottom" style="padding:0 3px"><div style="height:${h}px;background:${d.active ? COLORS.ink : COLORS.line};border-radius:6px"></div><div style="margin-top:6px;font-size:11px;line-height:14px;color:${COLORS.faint}">${d.label}</div></td>`;
+  }).join("");
+  const anyTopics = r.topics.strong.length + r.topics.medium.length + r.topics.weak.length > 0;
+  const topicsHtml = anyTopics
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${topicRow("Strong", r.topics.strong, COLORS.strong, COLORS.strongBg)}${topicRow("Medium", r.topics.medium, COLORS.medium, COLORS.mediumBg)}${topicRow("Needs work", r.topics.weak, COLORS.weak, COLORS.weakBg)}</table>`
+    : `<p style="margin:0;font-size:14px;line-height:22px;color:${COLORS.muted}">Take a test with topic labels to see your strong and weak areas here.</p>`;
+
+  const body = `<h1 style="margin:0 0 6px;font-size:32px;line-height:38px;font-weight:300;letter-spacing:-0.03em;color:${COLORS.ink}">Your week in review.</h1>
+<p style="margin:0 0 6px;font-size:13px;line-height:18px;color:${COLORS.faint}">${range}</p>
+<p style="margin:0 0 22px;font-size:16px;line-height:24px;color:${COLORS.muted}">Hi ${esc(name)}. ${esc(r.headline)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 -6px 8px"><tr>
+${tile("Reading time", `${r.minutes}<span style="font-size:15px;color:${COLORS.muted}"> min</span>`, `${r.sessions} session${r.sessions === 1 ? "" : "s"}`)}
+${tile("Avg speed", r.avgWpm === null ? "&ndash;" : `${r.avgWpm}<span style="font-size:15px;color:${COLORS.muted}"> WPM</span>`, r.bestWpm === null ? "" : `Best ${r.bestWpm} WPM`)}
+</tr><tr>
+${tile("Tests", `${r.testsTaken}`, r.avgAccuracy === null ? "" : `${r.avgAccuracy}% accuracy ${r.accuracyDelta === null ? "" : "(" + signed(r.accuracyDelta, " pts") + ")"}`.trim())}
+${tile("Consistency", `${r.activeDays}<span style="font-size:15px;color:${COLORS.muted}"> / 7 days</span>`, `${r.streak}-day streak`)}
+</tr></table>
+${r.wpmDelta === null ? "" : `<p style="margin:0 0 8px;font-size:12px;line-height:18px;color:${COLORS.faint}">Speed ${esc(signed(r.wpmDelta, " WPM"))}.</p>`}
+<h2 style="margin:26px 0 10px;font-size:18px;line-height:24px;font-weight:500;letter-spacing:-0.01em;color:${COLORS.ink}">Daily activity</h2>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${strip}</tr></table>
+<h2 style="margin:30px 0 8px;font-size:18px;line-height:24px;font-weight:500;letter-spacing:-0.01em;color:${COLORS.ink}">Topics this week</h2>
+${topicsHtml}
+${r.focus ? `<p style="margin:18px 0 0;padding:14px 18px;background:${COLORS.raised};border:1px solid ${COLORS.line};border-radius:16px;font-size:14px;line-height:22px;color:${COLORS.ink}">${esc(r.focus)}</p>` : ""}
+<div style="margin-top:30px">${button("Open Pacewise", appUrl)}</div>`;
+
+  const lines = [
+    `Your week in review (${range})`, "", `Hi ${name}. ${r.headline}`, "",
+    `Reading time: ${r.minutes} min (${r.sessions} sessions)`,
+    `Average speed: ${r.avgWpm ?? "-"} WPM${r.bestWpm === null ? "" : ` (best ${r.bestWpm})`}${r.wpmDelta === null ? "" : `, ${signed(r.wpmDelta, " WPM")}`}`,
+    `Tests: ${r.testsTaken}${r.avgAccuracy === null ? "" : `, ${r.avgAccuracy}% accuracy`}`,
+    `Consistency: ${r.activeDays}/7 days, ${r.streak}-day streak`, "",
+    ...(r.topics.strong.length ? [`Strong: ${r.topics.strong.map((t) => `${t.topic} ${t.accuracy}%`).join(", ")}`] : []),
+    ...(r.topics.medium.length ? [`Medium: ${r.topics.medium.map((t) => `${t.topic} ${t.accuracy}%`).join(", ")}`] : []),
+    ...(r.topics.weak.length ? [`Needs work: ${r.topics.weak.map((t) => `${t.topic} ${t.accuracy}%`).join(", ")}`] : []),
+    ...(r.focus ? ["", r.focus] : []), "", appUrl,
+  ];
+  return { subject: `Your Pacewise week: ${r.activeDays} of 7 days, ${r.minutes} min`, text: lines.join("\n"), html: layout({ preheader: r.headline, body, width: 600, footer: "You get this summary once a week. Pacewise &middot; Read at the speed of thought." }) };
 }

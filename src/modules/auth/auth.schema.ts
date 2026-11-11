@@ -55,3 +55,7 @@ export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ResetOtpInput = z.infer<typeof resetOtpSchema>;
 export type RefreshInput = z.infer<typeof refreshSchema>;
+
+/** The ID token ("credential") Google returns to the browser after the person picks their account. */
+export const googleSchema = z.object({ idToken: z.string().min(20).max(4096), device: z.string().max(80).optional() });
+export type GoogleInput = z.infer<typeof googleSchema>;
